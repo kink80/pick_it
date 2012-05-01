@@ -1,0 +1,18 @@
+<lift:surround xmlns:lift="http://liftweb.net" xmlns:login="http://liftweb.net" with="base" at="content">
+    <lift:test_cond.loggedin>
+        <div>
+            <ul>
+                <li>PickyTools</li>
+                <li>Help</li>
+            </ul>
+        </div>
+    </lift:test_cond.loggedin>
+    <lift:test_cond.loggedout>
+        <lift:LogInForm.login>
+            <div>
+                <span><login:email/></span>
+                <span><login:submit/></span>
+            </div>
+        </lift:LogInForm.login>
+    </lift:test_cond.loggedout>
+</lift:surround>
