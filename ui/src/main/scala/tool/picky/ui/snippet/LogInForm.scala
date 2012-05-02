@@ -1,36 +1,25 @@
 package tool.picky.ui.snippet
 
 import xml.NodeSeq
-import net.liftweb.http.{SHtml, S, RequestVar, SessionVar}
 import net.liftweb.util._
 import Helpers._
 import tool.picky.model.PickyToolUser
-import net.liftweb.common.Box
-import com.dropbox.client2.session.{WebAuthSession, AppKeyPair}
 import com.dropbox.client2.DropboxAPI
 import tool.picky.dbi.PickyToolApplication
+import net.liftweb.common.{Logger, Box}
+import net.liftweb.http.js.JsCmds.RedirectTo
+import scala.Predef._
+import net.liftweb.http.{SessionVar, SHtml, S, RequestVar}
+import com.dropbox.client2.session.{Session, WebAuthSession, AppKeyPair}
+import net.liftweb.http.js.JsCmds
+
+object dropboxSession extends SessionVar[WebAuthSession](null)
+object currentUserEmail extends SessionVar("")
 
 object LogInForm {
 
-  private object email extends RequestVar("")
-
   def auth() = {
-    val boxedUsr: Box[PickyToolUser] = PickyToolUser.findUserByEmail(email.is)
-    if(boxedUsr.isDefined) {
-     val usr: PickyToolUser = boxedUsr.openTheBox
-     if(usr.dropboxTokenKey.is.eq("") || usr.dropboxTokenSecret.is.eq("")) {
-       val session: WebAuthSession  = PickyToolApplication.getWebAuthenticationSession()
-       val mDBApi: DropboxAPI[WebAuthSession] = new DropboxAPI[WebAuthSession](session);
-       val waInfo: WebAuthSession.WebAuthInfo = mDBApi.getSession().getAuthInfo("/")
-       waInfo.url
-     } else {
-       true
-     }
-
-    }
-    // validate the user credentials and do a bunch of other stuff
-
-
+    true
   }
 
   /**
@@ -43,7 +32,23 @@ object LogInForm {
   def login(xhtml: NodeSeq): NodeSeq = {
     SHtml.ajaxForm(
       bind("login", xhtml,
-        "email" -> SHtml.text(email.is, email(_), "maxlength" -> "40"),
-        "submit" -> (SHtml.hidden(auth) ++ <input type="submit" value="Login"/>)))
+        "email" -> SHtml.text(currentUserEmail.is, currentUserEmail(_), "maxlength" -> "40"),
+        "submit" -> (SHtml.hidden(auth) ++ <input type="submit" value="Login"/>)), JsCmds.Noop, RedirectTo(getRedirectTarget))
+  }
+
+  private def getRedirectTarget():String = {
+    val boxedUsr: Box[PickyToolUser] = PickyToolUser.findUserByEmail(currentUserEmail.is)
+    val session: WebAuthSession  = PickyToolApplication.getWebAuthenticationSession()
+    val mDBApi: DropboxAPI[WebAuthSession] = new DropboxAPI[WebAuthSession](session);
+    dropboxSession.set(mDBApi.getSession())
+
+    if(boxedUsr.isEmpty) {
+
+      val waInfo: WebAuthSession.WebAuthInfo = mDBApi.getSession().getAuthInfo(
+        S.encodeURL(S.contextPath + "/register/" + SecurityHelpers.base64EncodeURLSafe(currentUserEmail.is.getBytes)))
+      waInfo.url
+    } else {
+      S.encodeURL(S.contextPath + "/dashboard/" + SecurityHelpers.base64EncodeURLSafe(currentUserEmail.is.getBytes))
+    }
   }
 }

@@ -6,7 +6,7 @@ import http._
 import sitemap.{SiteMap, Menu, Loc}
 import util.{ NamedPF }
 import tool.picky.dbabstract.MongoConfig
-import tool.picky.model.{DropboxIdVendor, PickyToolUser}
+import tool.picky.model.{UserEmail, DropboxIdVendor, PickyToolUser}
 
 
 class Boot {
@@ -23,10 +23,13 @@ class Boot {
       }
     )
 
+    val register = Menu.param[UserEmail]("RegisterUserView", "RegisterUserView",
+      s => Full(UserEmail(s)),
+      pi => pi.base64Email) / "register"
 
     // build sitemap
     val entries = (List(Menu("Home") / "index") :::
-                  
+                   List(register) :::
                   Nil)
     
     LiftRules.uriNotFound.prepend(NamedPF("404handler"){

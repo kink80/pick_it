@@ -7,6 +7,8 @@ import net.liftweb.mongodb.record.field.{BsonRecordField, BsonRecordListField, O
 import net.liftweb.record.field._
 import net.liftweb.mongodb.record._
 
+case class UserEmail(base64Email: String)
+
 object PickyToolRecipientsEnumeration extends Enumeration {
   type PickyToolRecipientsEnumeration = Value
   val Pruner, Reporter, Logger = Value
