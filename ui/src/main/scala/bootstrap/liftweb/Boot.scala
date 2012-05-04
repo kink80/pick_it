@@ -23,21 +23,26 @@ class Boot {
       }
     )
 
-    val register = Menu.param[UserEmail]("RegisterUserView", "RegisterUserView",
-      s => Full(UserEmail(s)),
-      pi => pi.base64Email) / "register"
+    LiftRules.statelessRewrite.prepend(NamedPF("RegisterRewrite") {
+      case RewriteRequest(
+      ParsePath("register" :: encodedEmail :: Nil, _, _,_), _, _) =>
+        RewriteResponse(
+          "register/register" :: Nil, Map("encodedEmail" -> encodedEmail)
+        )
+    })
 
     // build sitemap
     val entries = (List(Menu("Home") / "index") :::
-                   List(register) :::
+                   List(Menu("Register") / "register/register") :::
                   Nil)
+    LiftRules.setSiteMap(SiteMap(entries:_*))
     
     LiftRules.uriNotFound.prepend(NamedPF("404handler"){
       case (req,failure) => NotFoundAsTemplate(
         ParsePath(List("exceptions","404"),"html",false,false))
     })
     
-    LiftRules.setSiteMap(SiteMap(entries:_*))
+
     
     // set character encoding
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
