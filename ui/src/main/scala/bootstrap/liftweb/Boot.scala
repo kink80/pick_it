@@ -25,15 +25,21 @@ class Boot {
 
     LiftRules.statelessRewrite.prepend(NamedPF("RegisterRewrite") {
       case RewriteRequest(
-      ParsePath("register" :: encodedEmail :: Nil, _, _,_), _, _) =>
-        RewriteResponse(
-          "register/register" :: Nil, Map("encodedEmail" -> encodedEmail)
-        )
+      ParsePath("register" :: Nil, _, _,_), _, _) =>
+        RewriteResponse("register/index" :: Nil)
+      case RewriteRequest(
+      ParsePath("login" :: Nil, _, _,_), _, _) =>
+        RewriteResponse("login/index" :: Nil)
+      case RewriteRequest(
+      ParsePath("dashboard" :: Nil, _, _,_), _, _) =>
+        RewriteResponse("dashboard/index" :: Nil)
     })
 
     // build sitemap
     val entries = (List(Menu("Home") / "index") :::
-                   List(Menu("Register") / "register/register") :::
+                   List(Menu("Register") / "register/index") :::
+                   List(Menu("Login") / "login/index") :::
+                   List(Menu("Dashboard") / "dashboard/index") :::
                   Nil)
     LiftRules.setSiteMap(SiteMap(entries:_*))
     

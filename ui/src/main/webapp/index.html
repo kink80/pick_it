@@ -1,4 +1,4 @@
-<lift:surround xmlns:lift="http://liftweb.net" xmlns:login="http://liftweb.net" with="base" at="content">
+<lift:surround xmlns:lift="http://liftweb.net" xmlns:login="http://liftweb.net" xmlns:register="http://liftweb.net" with="base" at="content">
     <lift:test_cond.loggedin>
         <div>
             <ul>
@@ -8,11 +8,17 @@
         </div>
     </lift:test_cond.loggedin>
     <lift:test_cond.loggedout>
-        <lift:LogInForm.login>
             <div>
-                <span><login:email/></span>
-                <span><login:submit/></span>
+                <lift:LogInForm.login>
+                    <span><login:submit/></span>
+                </lift:LogInForm.login>
             </div>
-        </lift:LogInForm.login>
+            <div>or</div>
+            <div>
+                <lift:LogInForm.register>
+                    <span><register:submit/></span>
+                </lift:LogInForm.register>
+            </div>
+
     </lift:test_cond.loggedout>
 </lift:surround>
