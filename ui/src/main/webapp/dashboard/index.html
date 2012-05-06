@@ -1,9 +1,31 @@
-<lift:surround xmlns:lift="http://liftweb.net" xmlns:greet="http://liftweb.net" with="base" at="content">
+<lift:surround xmlns:lift="http://liftweb.net" xmlns:tool="http://liftweb.net" xmlns:dashboard="http://liftweb.net" xmlns:action="http://liftweb.net" with="base" at="content">
 
-    <lift:Dashboard.list>
+    <lift:Dashboard.account>
         <div>
-            <span><greet:user/></span>
+            <dashboard:logout/>
+            <dashboard:settings/>
         </div>
-    </lift:Dashboard.list>
+    </lift:Dashboard.account>
+
+
+    <div>
+        <ul>
+            <lift:Dashboard.list>
+                <li>
+                    <span><tool:name /></span>
+                    <span><tool:edit /></span>
+                </li>
+            </lift:Dashboard.list>
+        </ul>
+    </div>
+
+    <div>
+        <lift:Dashboard.action>
+            <span><action:tooladd /></span>
+        </lift:Dashboard.action>
+    </div>
+
+
+    <lift:msgs />
 
 </lift:surround>

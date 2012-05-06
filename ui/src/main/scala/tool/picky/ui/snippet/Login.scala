@@ -18,21 +18,19 @@ object Login {
   def auth() = {
     PickyToolUser.findUserByEmail(email) match {
       case Full(user) => {
-        println(pass)
-        println(user.password.value)
-        user.password.match_?(pass) match {
+        user.hashedPassword.is == SecurityHelpers.md5(pass) match {
           case true => {
             LoggedInUser.set(email)
             S.redirectTo("/dashboard")
           }
           case _ => {
             LoggedInUser.remove()
-            S.error("User or password does not match")
+            S.error(S.?("User or password does not match"))
           }
         }
       }
       case _ => {
-        S.error("User or password does not match")
+        S.error(S.?("User or password does not match"))
       }
     }
   }

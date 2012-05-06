@@ -71,6 +71,7 @@ class PickyToolUser private() extends MongoRecord[PickyToolUser] with MegaProtoU
 
   object dropboxTokenKey extends StringField(this, 100)
   object dropboxTokenSecret extends StringField(this, 100)
+  object hashedPassword extends StringField(this, 50)
 
   object ToolsSettings extends BsonRecordListField(this, ToolSettings)
 
@@ -82,22 +83,6 @@ class PickyToolUser private() extends MongoRecord[PickyToolUser] with MegaProtoU
     }
   }
 
-
-  override lazy val password = new MyPassword(this) {
-    override def salt = FatLazy("8011042996")
-
-    private var validatedValue: Box[String] = valueBox
-
-    override def match_?(toTest: String): Boolean =
-      get == hash("{"+toTest+"} salt={"+salt.get+"}")
-
-    override def set_!(in: Box[String]): Box[String] = {
-      validatedValue = in
-      in.map(s => hash("{"+s+"} salt={"+salt.get+"}"))
-    }
-
-    override def validate: List[FieldError] = runValidation(validatedValue)
-  }
 }
 
 object PickyToolUser extends PickyToolUser with MongoMetaRecord[PickyToolUser] with MetaMegaProtoUser[PickyToolUser] {

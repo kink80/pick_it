@@ -7,6 +7,7 @@ import sitemap.{SiteMap, Menu, Loc}
 import util.{ NamedPF }
 import tool.picky.dbabstract.MongoConfig
 import tool.picky.model.{UserEmail, DropboxIdVendor, PickyToolUser}
+import tool.picky.ui.snippet.LoggedInUser
 
 
 class Boot {
@@ -19,7 +20,10 @@ class Boot {
 
     LiftRules.loggedInTest = Full(
       () => {
-        PickyToolUser.loggedIn_?
+        PickyToolUser.findUserByEmail(LoggedInUser.get) match {
+          case Full(user) => true
+          case _ => false
+        }
       }
     )
 

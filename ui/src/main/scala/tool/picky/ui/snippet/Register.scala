@@ -22,20 +22,17 @@ object Register {
       case true => {
         PickyToolUser.findUserByEmail(email) match {
           case Full(user) => {
-            S.error("User alread exists")
+            S.error(S.?("User already exists"))
           }
           case _ => {
-            val usr: PickyToolUser = PickyToolUser.createRecord.email(email).password(pass).save
-            println(usr.password.match_?(pass))
-            println(usr.password.value)
-            println(pass)
+            PickyToolUser.createRecord.email(email).hashedPassword(SecurityHelpers.md5(pass)).save
             LoggedInUser.set(email)
             S.redirectTo("/dashboard")
           }
         }
       }
       case false => {
-        S.error("Password does not match")
+        S.error(S.?("Password does not match"))
       }
     }
   }
