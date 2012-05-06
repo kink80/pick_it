@@ -1,11 +1,12 @@
 package tool.picky.model
 
-import net.liftweb.record.{MegaProtoUser, MetaMegaProtoUser}
-import net.liftweb.util.FieldError
 import net.liftweb.common.{Empty, Full, Box}
 import net.liftweb.mongodb.record.field.{BsonRecordField, BsonRecordListField, ObjectIdPk}
 import net.liftweb.record.field._
 import net.liftweb.mongodb.record._
+import net.liftweb.record.{MegaProtoUser, MetaMegaProtoUser}
+import net.liftweb.util.{FatLazy, FieldError}
+import net.liftweb.util.Helpers._
 
 case class UserEmail(base64Email: String)
 
@@ -79,6 +80,23 @@ class PickyToolUser private() extends MongoRecord[PickyToolUser] with MegaProtoU
       case usr :: Nil if (usr.id == id) => Nil
       case _ => List(FieldError(email, "The email should be unique"))
     }
+  }
+
+
+  override lazy val password = new MyPassword(this) {
+    override def salt = FatLazy("8011042996")
+
+    private var validatedValue: Box[String] = valueBox
+
+    override def match_?(toTest: String): Boolean =
+      get == hash("{"+toTest+"} salt={"+salt.get+"}")
+
+    override def set_!(in: Box[String]): Box[String] = {
+      validatedValue = in
+      in.map(s => hash("{"+s+"} salt={"+salt.get+"}"))
+    }
+
+    override def validate: List[FieldError] = runValidation(validatedValue)
   }
 }
 

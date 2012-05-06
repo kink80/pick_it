@@ -5,11 +5,10 @@ import xml.{Text, NodeSeq}
 import com.dropbox.client2.DropboxAPI
 import com.dropbox.client2.session.{AccessTokenPair, RequestTokenPair, WebAuthSession}
 import tool.picky.model.PickyToolUser
-import net.liftweb.common.Box
 import tool.picky.dbi.PickyToolApplication
 import net.liftweb.util.SecurityHelpers
 import net.liftweb.http.{SessionVar, RequestVar, S, SHtml}
-import net.liftweb.http.js.JsCmds.RedirectTo
+import net.liftweb.common.{Empty, Full, Box}
 
 object DropboxSession extends SessionVar[WebAuthSession](null)
 
@@ -19,29 +18,34 @@ object Register {
   var email = ""; var pass = ""; var confirmPass = ""
 
   def verify() = {
-    if(! pass.equals(confirmPass)) {
-      false
+    pass == confirmPass match {
+      case true => {
+        PickyToolUser.findUserByEmail(email) match {
+          case Full(user) => {
+            S.error("User alread exists")
+          }
+          case _ => {
+            val usr: PickyToolUser = PickyToolUser.createRecord.email(email).password(pass).save
+            println(usr.password.match_?(pass))
+            println(usr.password.value)
+            println(pass)
+            LoggedInUser.set(email)
+            S.redirectTo("/dashboard")
+          }
+        }
+      }
+      case false => {
+        S.error("Password does not match")
+      }
     }
-    val usr: PickyToolUser = PickyToolUser.findUserByEmail(email) openOr null
-    if(usr != null) {
-      false
-    }
-
-    PickyToolUser.createRecord.email(email).password(pass).save
-    LoggedInUser.set(email)
-    RedirectTo("/dashboard")
-  }
-
-  private def hash(in: String): Any = {
-    pass = SecurityHelpers.md5(in.toString())
   }
 
   def form(xhtml: NodeSeq): NodeSeq = {
     SHtml.ajaxForm(
       bind("form", xhtml,
         "email" -> SHtml.text(email, email = _),
-        "password" -> SHtml.password(pass, hash(_)),
-        "confirm" -> SHtml.password(confirmPass, hash(_)),
+        "password" -> SHtml.password(pass, pass = _),
+        "confirm" -> SHtml.password(confirmPass, confirmPass = _),
         "submit" -> (SHtml.hidden(verify) ++ <input type="submit" value="Register"/>))
     )
   }
