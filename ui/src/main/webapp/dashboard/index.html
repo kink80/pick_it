@@ -1,5 +1,13 @@
 <lift:surround xmlns:lift="http://liftweb.net" xmlns:tool="http://liftweb.net" xmlns:dashboard="http://liftweb.net" xmlns:action="http://liftweb.net" with="base" at="content">
 
+    <head_merge>
+        <title>Dashboard</title>
+        <script src="js/jqwidgets/jqxcore.js"></script>
+        <script type="text/javascript" src="js/jqBlock/jquery.blockUI.js"></script>
+        <script type="text/javascript" src="js/jqBlock/jquery.blockUI.custom.js"></script>
+        <link rel="stylesheet" href="js/jqwidgets/styles/jqx.base.css" type="text/css" />
+    </head_merge>
+
     <lift:Dashboard.account>
         <div>
             <dashboard:logout/>

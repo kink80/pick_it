@@ -7,6 +7,9 @@ import net.liftweb.common.Full
 import net.liftweb.http.{S, SHtml}
 import xml.{Text, NodeSeq}
 import net.liftweb.util.Helpers._
+import net.liftweb.http.SHtml._
+import net.liftweb.http.js.jquery.JqJsCmds.ModalDialog
+import net.liftweb.http.js.JsCmds.Alert
 
 object Dashboard {
 
@@ -14,7 +17,7 @@ object Dashboard {
     PickyToolUser.findUserByEmail(LoggedInUser.get) match {
       case Full(user) => {
         user.ToolsSettings.get match {
-          case Nil => Text("No tools configured")
+          case Nil => <li>No tools configured</li>
           case items => items.flatMap(i =>
             bind("tool", xhtml,
               "name" -> {i.name},
@@ -33,7 +36,10 @@ object Dashboard {
     PickyToolUser.findUserByEmail(LoggedInUser.get) match {
       case Full(user) => {
         bind("action", xhtml,
-          "tooladd" -> SHtml.link("/addtool", () => {}, Text("Add"))
+          "tooladd" -> ajaxButton(Text("Add"),
+            () => S.runTemplate(List("tool/add")).
+              map(ns => ModalDialog(ns)) openOr
+              Alert("Couldn't find 'add' template in tool"))
         )
       }
       case _ => {
