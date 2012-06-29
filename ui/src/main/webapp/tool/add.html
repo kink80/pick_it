@@ -1,13 +1,29 @@
 <div>
-    <lift:AddTool.form xmlns:lift="http://liftweb.net" xmlns:form="http://liftweb.net">
+    <lift:AddTool.form xmlns:lift="http://liftweb.net" xmlns:form="http://liftweb.net" xmlns:tags="http://liftweb.net">
         <div>
-            <p>
-                Run every <form:unit id="unit" /> <form:period />  and delete every <form:target />
-                having
-            </p>
-            <form:submit />
+            <h3>What</h3>
+            <p>delete any <form:target /></p>
+            <h3>When</h3>
+            <p>every <form:unit id="unit" /> <form:period /></p>
+            <h3>Which has</h3>
         </div>
+        <lift:msgs />
     </lift:AddTool.form>
+    <lift:AddTool.expressionForm xmlns:lift="http://liftweb.net" xmlns:form="http://liftweb.net" xmlns:tags="http://liftweb.net">
+        <p>
+            <form:metatag /> <form:expression /> <form:tagvalue /> <form:addbutton />
+        </p>
+        <p>
+        <ul>
+            <form:taglist>
+                <li><form:taglistname/></li>
+            </form:taglist>
+        </ul>
+        </p>
+    </lift:AddTool.expressionForm>
+    <lift:AddTool.button xmlns:lift="http://liftweb.net" xmlns:form="http://liftweb.net" xmlns:tags="http://liftweb.net">
+        <form:submit />
+    </lift:AddTool.button>
 
-    <lift:msgs />
+
 </div>

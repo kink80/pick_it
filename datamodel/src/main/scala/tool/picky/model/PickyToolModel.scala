@@ -25,7 +25,7 @@ object PickyToolRecipient extends PickyToolRecipient with BsonMetaRecord[PickyTo
 
 object MetaTag extends Enumeration {
   type MetaTag = Value
-  val Size, Modified, Path, IsDirectory, MimeType = Value
+  val Size, Modified, Path, MimeType = Value
 }
 
 object MetaTagExpression extends Enumeration {
