@@ -10,6 +10,10 @@ import tool.picky.model._
 import net.liftweb.http.js.{JsCmds, JsCmd}
 import net.liftweb.common.Full
 import net.liftweb.common.Full
+import net.liftweb.common.Full
+import net.liftweb.http.js.JsCmds.SetValById
+import net.liftweb.http.js.JsCmds.ReplaceOptions
+import collection.mutable.ListBuffer
 
 object AddTool {
 
@@ -24,8 +28,6 @@ object AddTool {
     "hour" -> List[Int](1,2,3,4,5,6,12,15,18,21,24),
     "day" -> List[Int](1,2,5,10)
   )
-
-  val conditions = List[MetaTagCondition] ()
 
   private object selectedPeriod extends RequestVar[String](unitMap.head._1)
   private object selectedValue extends RequestVar[Int](unitsToPeriodMap.get(selectedPeriod.get).get.head)
@@ -112,13 +114,14 @@ object AddTool {
       }
     ).toSeq
 
+    val conditions = new ListBuffer[MetaTagCondition]
     val initial = metatags.head._1
     val expressionsInitial = getAllowableExpression(initial)
 
     var currentExpressionValue = ""
     var currentTag = initial
-    var currentExpression = ""
-
+    var currentExpression = MetaTagExpression.withName(expressionsInitial.head._1)
+    var currentExpressionString = currentExpression.toString()
 
     def bindList( xhtml: NodeSeq): NodeSeq = {
       conditions.flatMap{case (c) => bind("taglistname", xhtml, "name" -> c.tag.value.toString)}
@@ -126,28 +129,29 @@ object AddTool {
 
     def setTag(value: MetaTag.MetaTag): JsCmd = {
       currentTag = value
-      currentExpression = getAllowableExpression(value).head._1
+      currentExpressionString = getAllowableExpression(value).head._1
       currentExpressionValue = ""
       SetValById("expressionValue", currentExpressionValue) &
       ReplaceOptions("expression", getAllowableExpression(value).toList, Empty)
     }
 
     def setExpression(value: String): JsCmd = {
-      currentExpression = value
+      currentExpressionString = value
+      currentExpression = MetaTagExpression.withName(value)
       JsCmds.Noop
     }
 
     def addExpression(): JsCmd = {
-      println(currentTag)
-      println(currentExpressionValue)
-      println(currentExpression)
+      val cnd:MetaTagCondition = MetaTagCondition.createRecord.tag(currentTag).expression(currentExpression).value(currentExpressionValue)
+      conditions += cnd
+      bindList _
       JsCmds.Noop
     }
 
     SHtml.ajaxForm(
       bind("form", xhtml,
         "metatag" -> SHtml.ajaxSelectObj(metatags, Full(initial), setTag _),
-        "expression" -> SHtml.ajaxSelect(expressionsInitial.toSeq, Empty, setExpression _, "id" -> "expression"),
+        "expression" -> SHtml.ajaxSelect(expressionsInitial.toSeq, Full(currentExpressionString), setExpression _, "id" -> "expression"),
         "tagvalue" -> SHtml.text(currentExpressionValue, currentExpressionValue = _, "id" -> "expressionValue"),
         "addbutton" -> (SHtml.hidden(addExpression) ++ <input type="submit" value="Add"/>) ,
         "taglist" -> bindList _
