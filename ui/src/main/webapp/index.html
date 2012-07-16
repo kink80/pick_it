@@ -3,20 +3,27 @@
         <div>
             <ul>
                 <li>PickyTools</li>
-                <li>Help</li>
             </ul>
         </div>
     </lift:test_cond.loggedin>
     <lift:test_cond.loggedout>
             <div>
                 <lift:LogInForm.login>
-                    <span><login:submit/></span>
+                    <span>
+                        <login:submit>
+                            <lift:loc locid="LABEL_LOGIN">Login</lift:loc>
+                        </login:submit>
+                    </span>
                 </lift:LogInForm.login>
             </div>
             <div>or</div>
             <div>
                 <lift:LogInForm.register>
-                    <span><register:submit/></span>
+                    <span>
+                        <register:submit>
+                            <lift:loc locid="LABEL_REGISTER">Register</lift:loc>
+                        </register:submit>
+                    </span>
                 </lift:LogInForm.register>
             </div>
 

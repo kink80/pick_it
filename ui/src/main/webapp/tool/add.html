@@ -1,29 +1,40 @@
 <div>
     <lift:AddTool.form xmlns:lift="http://liftweb.net" xmlns:form="http://liftweb.net" xmlns:tags="http://liftweb.net">
         <div>
-            <h3>What</h3>
-            <p>delete any <form:target /></p>
-            <h3>When</h3>
-            <p>every <form:unit id="unit" /> <form:period /></p>
-            <h3>Conditions</h3>
+            <h3>
+                <lift:loc locid="LABEL_WHAT">What</lift:loc>
+            </h3>
+            <p>
+                <lift:loc locid="LABEL_DELETE_ANY">delete any </lift:loc>
+                <form:target />
+            </p>
+            <h3>
+                <lift:loc locid="LABEL_WHEN">When</lift:loc>
+            </h3>
+            <p>
+                <lift:loc locid="LABEL_EVERY">every </lift:loc>
+                <form:unit id="unit" />
+                <form:period />
+            </p>
+            <p>
+                <label for="advancedOptions">
+                    <lift:loc locid="LABEL_ADVANCED">Show advanced options</lift:loc>
+                </label>
+                <form:showAdvanced/>
+            </p>
+            <div id="advanced" style="display:none">
+                <h3>
+                    <lift:loc locid="LABEL_OLDER">Older than</lift:loc>
+                </h3>
+                <p>
+                    <form:age />
+                    <form:timeunit />
+                </p>
+            </div>
+            <form:submit />
         </div>
         <lift:msgs />
     </lift:AddTool.form>
-    <lift:AddTool.expressionForm xmlns:lift="http://liftweb.net" xmlns:form="http://liftweb.net" xmlns:tags="http://liftweb.net">
-        <p>
-            <form:metatag /> <form:expression /> <form:tagvalue /> <form:addbutton />
-        </p>
-        <p>
-        <ul>
-            <form:taglist>
-                <li><form:taglistname/></li>
-            </form:taglist>
-        </ul>
-        </p>
-    </lift:AddTool.expressionForm>
-    <lift:AddTool.button xmlns:lift="http://liftweb.net" xmlns:form="http://liftweb.net" xmlns:tags="http://liftweb.net">
-        <form:submit />
-    </lift:AddTool.button>
 
 
 </div>

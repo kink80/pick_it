@@ -14,7 +14,8 @@ class Boot {
   def boot {
 
     MongoConfig.init
-  
+
+    LiftRules.resourceNames = "i18n/messages" :: LiftRules.resourceNames
     // where to search snippet
     LiftRules.addToPackages("tool.picky.ui")
 

@@ -2,9 +2,23 @@
 
     <lift:Login.form>
         <div>
-            <span><form:email/></span>
-            <span><form:password/></span>
-            <span><form:submit/></span>
+            <span>
+                <label for="email">
+                    <lift:loc locid="LABEL_EMAIL">Email:</lift:loc>
+                </label>
+                 <form:email name="email"/>
+            </span>
+            <span>
+                <label for="password">
+                    <lift:loc locid="LABEL_PASSWORD">Password:</lift:loc>
+                </label>
+                <form:password name="password"/>
+            </span>
+            <span>
+                <form:submit>
+                    <lift:loc locid="LABEL_LOGIN">Login</lift:loc>
+                </form:submit>
+            </span>
         </div>
     </lift:Login.form>
 
