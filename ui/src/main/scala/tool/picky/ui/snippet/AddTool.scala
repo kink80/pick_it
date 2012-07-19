@@ -8,20 +8,17 @@ import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.{RequestVar, S, SessionVar, SHtml}
 import tool.picky.model._
 import net.liftweb.http.js.{JsCmds, JsCmd}
-import net.liftweb.common.Full
-import net.liftweb.common.Full
-import net.liftweb.common.Full
-import collection.mutable.ListBuffer
 import net.liftweb.http.js.JsCmds.ReplaceOptions
 import net.liftweb.common.Full
 import net.liftweb.http.js.JE.{JsRaw, JsFunc}
+import tool.picky.PickyToolRegistry
 
 object AddTool {
 
   val unitMap = List(
-    ("minute", "Minute(s)"),
-    ("hour", "Hour(s)"),
-    ("day", "Day(s)")
+    ("minute", S.?("LABEL_MINUTES")),
+    ("hour", S.?("LABEL_HOURS")),
+    ("day", S.?("LABEL_DAYS"))
   )
 
   val unitsToPeriodMap = Map(
@@ -31,13 +28,12 @@ object AddTool {
   )
 
   val numberUnits = List(
-    ("second", "Seconds(s)"),
-    ("minute", "Minute(s)"),
-    ("hour", "Hour(s)"),
-    ("day", "Day(s)"),
-    ("week", "Week(s)"),
-    ("month", "Month(s)"),
-    ("year", "Year(s)")
+    ("second", S.?("LABEL_SECONDS")),
+    ("minute", S.?("LABEL_MINUTES")),
+    ("hour", S.?("LABEL_HOURS")),
+    ("day", S.?("LABEL_DAYS")),
+    ("week", S.?("LABEL_WEEKS")),
+    ("year", S.?("LABEL_YEARS"))
   )
 
   private object selectedPeriod extends RequestVar[String](unitMap.head._1)
@@ -83,12 +79,18 @@ object AddTool {
     }
     PickyToolUser.findUserByEmail(LoggedInUser.get) match {
       case Full(user) => {
-        val tool = ScheduledTool.createRecord.name("Delete entry").runEvery(period).userEmail(user.email.get)
+        val runsEveryLabel = numberUnits.filter(item => {
+          val(name, _) = item
+          name == selectedPeriod.get
+        }).head._2
+        val toolLabel = S.?("LABEL_TOOL_NAME", selectedValue.get, runsEveryLabel)
+        val tool = ScheduledTool.createRecord.name(toolLabel).runEvery(period).userEmail(user.email.get)
         if(age > 0) {
           val cond = MetaTagCondition.createRecord.tag(MetaTag.Modified).expression(MetaTagExpression.LessThanEquals).value(age.toString)
-          tool.conditions.atomicUpdate(cond :: _)
+          PickyToolRegistry.schedule(toolLabel, List(cond), user.email.toString(), period)
+        } else {
+          PickyToolRegistry.schedule(toolLabel, user.email.toString(), period)
         }
-        tool.save
         Unblock & RedirectTo("/dashboard")
       }
       case _ => {
@@ -120,7 +122,7 @@ object AddTool {
       bind("form", xhtml,
         "period" -> SHtml.ajaxSelectObj[String](unitMap, Full(selectedPeriod.get), adjustTimeUnit _),
         "unit" -> SHtml.select(unitsToPeriodMap.get(selectedPeriod.get).get.map(v => (v.toString(), v.toString())), Full(selectedValue.get.toString()), updateAmount _, "id" -> "unit"),
-        "target" -> SHtml.select(("file","File") :: ("folder","Folder") :: Nil, Empty, (String) => {}),
+        "target" -> SHtml.select(("file", S.?("LABEL_FILE")) :: ("folder", S.?("LABEL_FOLDER")) :: Nil, Empty, (String) => {}),
         "showAdvanced" -> SHtml.ajaxCheckbox(false, toggleShowAdvanced _),
         "age" -> SHtml.text("", selectedAge.set(_), "id" -> "age"),
         "timeunit" -> SHtml.select(numberUnits, Full(selectedNumberUnit.get), selectedNumberUnit.set(_)),

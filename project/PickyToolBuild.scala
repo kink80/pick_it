@@ -15,6 +15,6 @@ object PickyToolBuild extends Build {
     base = file("service")) dependsOn(dbi)
 
   lazy val ui = Project(id = "ui",
-    base = file("ui")) dependsOn(dbi)
+    base = file("ui")) dependsOn(dbi, service)
 
 }

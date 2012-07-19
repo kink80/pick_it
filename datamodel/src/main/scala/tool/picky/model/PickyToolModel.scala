@@ -1,9 +1,9 @@
 package tool.picky.model
 
 import net.liftweb.common.{Empty, Full, Box}
-import net.liftweb.mongodb.record.field.{BsonRecordField, BsonRecordListField, ObjectIdPk}
 import net.liftweb.record.field._
 import net.liftweb.mongodb.record._
+import field.{ObjectIdPk, BsonRecordListField, DateField}
 import net.liftweb.record.{MegaProtoUser, MetaMegaProtoUser}
 import net.liftweb.util.{FatLazy, FieldError}
 import net.liftweb.util.Helpers._
@@ -42,29 +42,20 @@ class MetaTagCondition private() extends BsonRecord[MetaTagCondition] {
 }
 object MetaTagCondition extends MetaTagCondition with BsonMetaRecord[MetaTagCondition]
 
-class ToolOption private() extends BsonRecord[ToolOption] {
-  def meta = ToolOption
-
-  object key extends StringField(this, 100)
-
-  object value extends StringField(this, 100)
-
+object JournalType extends Enumeration {
+  type JournalType = Value
+  val Error, Succes = Value
 }
 
-object ToolOption extends ToolOption with BsonMetaRecord[ToolOption]
+class JournalLine private() extends BsonRecord[JournalLine] {
+  def meta = JournalLine
 
-class ToolSettings private() extends MongoRecord[ToolSettings] with ObjectIdPk[ToolSettings] {
-  def meta = ToolSettings
-
-  object name extends StringField(this, 50)
-
-  object settings extends BsonRecordListField(this, ToolOption)
-
+  object journalType extends EnumField(this, JournalType)
+  object date extends DateField(this)
+  object text extends StringField(this, "")
 }
 
-object ToolSettings extends ToolSettings with MongoMetaRecord[ToolSettings] {
-  override def collectionName = "toolsettings"
-}
+object JournalLine extends JournalLine with BsonMetaRecord[JournalLine]
 
 class PickyToolUser private() extends MongoRecord[PickyToolUser] with MegaProtoUser[PickyToolUser] {
   def meta = PickyToolUser
@@ -72,8 +63,6 @@ class PickyToolUser private() extends MongoRecord[PickyToolUser] with MegaProtoU
   object dropboxTokenKey extends StringField(this, 100)
   object dropboxTokenSecret extends StringField(this, 100)
   object hashedPassword extends StringField(this, 50)
-
-  object ToolsSettings extends BsonRecordListField(this, ToolSettings)
 
   override def valUnique(errorMsg: => String)(emailValue: String) = {
     meta.findAll("email", emailValue) match {
@@ -113,18 +102,6 @@ object PickyToolUser extends PickyToolUser with MongoMetaRecord[PickyToolUser] w
   override def homePage = if (loggedIn_?) "/dashboard" else "/"
 }
 
-class PickyTool private() extends MongoRecord[PickyTool] with ObjectIdPk[PickyTool] {
-  def meta = PickyTool
-
-  object name extends StringField(this, 100)
-
-  object settings extends BsonRecordField(this, ToolSettings)
-}
-
-object PickyTool extends PickyTool with MongoMetaRecord[PickyTool] {
-  override def collectionName = "pickyTooltools"
-}
-
 class ScheduledTool private() extends MongoRecord[ScheduledTool] with ObjectIdPk[ScheduledTool] {
   def meta = ScheduledTool
 
@@ -137,7 +114,7 @@ class ScheduledTool private() extends MongoRecord[ScheduledTool] with ObjectIdPk
   object conditions extends BsonRecordListField(this, MetaTagCondition)
   object recipients extends BsonRecordListField(this, PickyToolRecipient)
 
-  object settings extends BsonRecordField(this, ToolSettings)
+  object journal extends BsonRecordListField(this, JournalLine)
 }
 
 object ScheduledTool extends ScheduledTool with MongoMetaRecord[ScheduledTool] {

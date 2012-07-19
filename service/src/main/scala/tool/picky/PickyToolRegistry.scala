@@ -28,15 +28,14 @@ object PickyToolRegistry {
   private val tasks = new HashSet[PickyToolCancellable]
   private val system = ActorSystem("PickyToolSystem")
 
-  def schedule(tool: PickyTool, toolName: String, customToolSettings: ToolSettings,
-               conditions: List[MetaTagCondition], recipients: List[PickyToolRecipient], user: PickyToolUser, runsEvery: Long) = {
+  def schedule(toolName: String, userEmail: String, runsEvery: Long):Unit = {
+    schedule(toolName, List(), userEmail, runsEvery)
+  }
 
-    val exists = ScheduledTool.find(("name" -> toolName)).isDefined
-    if(exists) {
-      throw new ToolAlreadyExists(toolName + " already exists")
-    }
-    val scheduled = ScheduledTool.createRecord.name(toolName).userEmail(user.email.is).runEvery(runsEvery).
-      settings(customToolSettings).conditions(conditions).recipients(recipients).save
+  def schedule(toolName: String,
+               conditions: List[MetaTagCondition], userEmail: String, runsEvery: Long):Unit = {
+    val scheduled = ScheduledTool.createRecord.name(toolName).userEmail(userEmail).runEvery(runsEvery).
+      conditions(conditions).save
 
     PickyToolRegistry.register(scheduled)
   }
