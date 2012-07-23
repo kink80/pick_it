@@ -40,8 +40,9 @@ object PickyToolRegistry {
     PickyToolRegistry.register(scheduled)
   }
 
-  def scheduleTraversing(targetUserEmail: String, targetTool: String, directory: String, conditions: List[MetaTagCondition], recipients: List[PickyToolRecipient]) = {
-    val traverser = system.actorOf(Props[PickyToolTraverser], name = "traverser")
+  def scheduleTraversing(targetUserEmail: String, targetId: String,
+                         targetTool: String, directory: String, conditions: List[MetaTagCondition], recipients: List[PickyToolRecipient]) = {
+    val traverser = system.actorOf(Props[PickyToolTraverser], name = "traverser" + targetId)
     traverser ! TraverseMessage(targetUserEmail, targetTool, "/", conditions, recipients)
   }
 
@@ -55,7 +56,7 @@ object PickyToolRegistry {
       tasks.remove(cnc)
     })
 
-    val listener = system.actorOf(Props[PickyToolSearcher], name = "searcher")
+    val listener = system.actorOf(Props[PickyToolSearcher], name = "searcher" + tool.id.toString())
 
     val cancellable: PickyToolCancellable = new PickyToolCancellable(tool.id.is,
       system.scheduler.schedule(Duration.create(0, TimeUnit.MILLISECONDS), Duration.create(tool.runEvery.get.asInstanceOf[Long], TimeUnit.MILLISECONDS), listener,

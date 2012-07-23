@@ -30,7 +30,7 @@ class PickyToolSearcher extends Actor {
           scheduledTool.running(true).save
         }
 
-        PickyToolRegistry.scheduleTraversing(targetUserEmail, targetTool, "/",
+        PickyToolRegistry.scheduleTraversing(targetUserEmail, scheduledTool.id.get.toString, targetTool, "/",
           scheduledTool.conditions.get, scheduledTool.recipients.get)
       }
     }

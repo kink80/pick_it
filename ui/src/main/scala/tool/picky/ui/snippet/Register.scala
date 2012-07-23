@@ -27,7 +27,7 @@ object Register {
           case _ => {
             PickyToolUser.createRecord.email(email).hashedPassword(SecurityHelpers.md5(pass)).save
             LoggedInUser.set(email)
-            S.redirectTo("/dashboard")
+            S.redirectTo(getRedirectTarget)
           }
         }
       }
@@ -56,14 +56,14 @@ object Register {
     val mDBApi: DropboxAPI[WebAuthSession] = new DropboxAPI[WebAuthSession](session);
     DropboxSession.set(mDBApi.getSession())
 
+    val target = S.encodeURL(S.hostAndPath + "/dashboard" + SecurityHelpers.base64EncodeURLSafe(encodedEmail.is.getBytes))
     if(boxedUsr.isEmpty) {
-      val url: String = S.hostAndPath + "/register/"
       val email: String =  encodedEmail.is
       val encoded: String = SecurityHelpers.base64EncodeURLSafe(email.getBytes);
-      val waInfo: WebAuthSession.WebAuthInfo = mDBApi.getSession().getAuthInfo(url + encoded)
+      val waInfo: WebAuthSession.WebAuthInfo = mDBApi.getSession().getAuthInfo(target + encoded)
       waInfo.url
     } else {
-      S.encodeURL(S.hostAndPath + "/dashboard/" + SecurityHelpers.base64EncodeURLSafe(encodedEmail.is.getBytes))
+      target
     }
   }
 
