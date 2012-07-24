@@ -1,7 +1,7 @@
 package bootstrap.liftweb
 
 import net.liftweb._
-import common.Full
+import common.{Box, Full}
 import http._
 import sitemap.{SiteMap, Menu, Loc}
 import util.{ NamedPF }
@@ -21,8 +21,11 @@ class Boot {
 
     LiftRules.loggedInTest = Full(
       () => {
+        if(LoggedInUser.get.isEmpty) false
         PickyToolUser.findUserByEmail(LoggedInUser.get) match {
-          case Full(user) => true
+          case Full(user) => {
+            true
+          }
           case _ => false
         }
       }
@@ -30,21 +33,25 @@ class Boot {
 
     LiftRules.statelessRewrite.prepend(NamedPF("RegisterRewrite") {
       case RewriteRequest(
-      ParsePath("register" :: Nil, _, _,_), _, _) =>
-        RewriteResponse("register/index" :: Nil)
+        ParsePath("register" :: "finish" :: Nil, _, _,_), _, _) =>
+        RewriteResponse("register/finish" :: Nil)
       case RewriteRequest(
-      ParsePath("login" :: Nil, _, _,_), _, _) =>
-        RewriteResponse("login/index" :: Nil)
+        ParsePath("register" :: Nil, _, _,_), _, _) =>
+        RewriteResponse("register/register" :: Nil)
       case RewriteRequest(
-      ParsePath("dashboard" :: Nil, _, _,_), _, _) =>
-        RewriteResponse("dashboard/index" :: Nil)
+        ParsePath("login" :: Nil, _, _,_), _, _) =>
+        RewriteResponse("login/login" :: Nil)
+      case RewriteRequest(
+        ParsePath("dashboard" :: Nil, _, _,_), _, _) =>
+        RewriteResponse("dashboard/dashboard" :: Nil)
     })
 
     // build sitemap
     val entries = (List(Menu("Home") / "index") :::
-                   List(Menu("Register") / "register/index") :::
-                   List(Menu("Login") / "login/index") :::
-                   List(Menu("Dashboard") / "dashboard/index") :::
+                   List(Menu("Finish") / "register/finish") :::
+                   List(Menu("Register") / "register/register") :::
+                   List(Menu("Login") / "login/login") :::
+                   List(Menu("Dashboard") / "dashboard/dashboard") :::
                   Nil)
     LiftRules.setSiteMap(SiteMap(entries:_*))
     

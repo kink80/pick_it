@@ -62,6 +62,7 @@ object Dashboard {
         bind("dashboard", xhtml,
           "logout" -> SHtml.link("/", () => {
             LoggedInUser.remove()
+            println(LoggedInUser.get)
           }, Text(S.?("LABEL_LOGOUT"))),
           "settings" -> SHtml.link("/settings", () => {
             //TODO finish this

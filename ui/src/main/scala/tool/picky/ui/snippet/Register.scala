@@ -22,17 +22,19 @@ object Register {
       case true => {
         PickyToolUser.findUserByEmail(email) match {
           case Full(user) => {
-            S.error(S.?("User already exists"))
+            S.error(S.?("ERROR_USER_EXISTS"))
           }
           case _ => {
+            /*
             PickyToolUser.createRecord.email(email).hashedPassword(SecurityHelpers.md5(pass)).save
             LoggedInUser.set(email)
+            */
             S.redirectTo(getRedirectTarget)
           }
         }
       }
       case false => {
-        S.error(S.?("Password does not match"))
+        S.error(S.?("ERROR_PASSWORD_MISMATCH"))
       }
     }
   }
@@ -43,7 +45,7 @@ object Register {
         "email" -> SHtml.text(email, email = _),
         "password" -> SHtml.password(pass, pass = _),
         "confirm" -> SHtml.password(confirmPass, confirmPass = _),
-        "submit" -> (SHtml.hidden(verify) ++ <input type="submit" value="Register"/>))
+        "submit" -> SHtml.ajaxSubmit(S.?("LABEL_REGISTER"), verify))
     )
   }
 
@@ -56,18 +58,19 @@ object Register {
     val mDBApi: DropboxAPI[WebAuthSession] = new DropboxAPI[WebAuthSession](session);
     DropboxSession.set(mDBApi.getSession())
 
-    val target = S.encodeURL(S.hostAndPath + "/dashboard" + SecurityHelpers.base64EncodeURLSafe(encodedEmail.is.getBytes))
+
     if(boxedUsr.isEmpty) {
+      val target = S.encodeURL(S.hostAndPath + "/register/finish" + SecurityHelpers.base64EncodeURLSafe(encodedEmail.is.getBytes))
       val email: String =  encodedEmail.is
       val encoded: String = SecurityHelpers.base64EncodeURLSafe(email.getBytes);
       val waInfo: WebAuthSession.WebAuthInfo = mDBApi.getSession().getAuthInfo(target + encoded)
       waInfo.url
     } else {
-      target
+      S.encodeURL(S.hostAndPath + "/dashboard" + SecurityHelpers.base64EncodeURLSafe(encodedEmail.is.getBytes))
     }
   }
 
-  def content(xhtml: NodeSeq): NodeSeq = {
+  def finish(xhtml: NodeSeq): NodeSeq = {
     val session: WebAuthSession = DropboxSession.get
     if(session == null) {
       S.redirectTo("/error")
@@ -86,6 +89,6 @@ object Register {
     PickyToolUser.createRecord.email(encodedEmail.is).dropboxTokenKey(reqPair.key).dropboxTokenSecret(reqPair.secret).
       firstName(account.displayName).save
 
-    bind("content", xhtml,"dashboard" -> Text(account.displayName))
+    S.redirectTo(S.encodeURL(S.hostAndPath + "/dashboard" + SecurityHelpers.base64EncodeURLSafe(encodedEmail.is.getBytes)))
   }
 }

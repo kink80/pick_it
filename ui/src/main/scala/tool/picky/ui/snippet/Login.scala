@@ -25,12 +25,12 @@ object Login {
           }
           case _ => {
             LoggedInUser.remove()
-            S.error(S.?("User or password does not match"))
+            S.error(S.?("ERROR_LOGIN_FAILED"))
           }
         }
       }
       case _ => {
-        S.error(S.?("User or password does not match"))
+        S.error(S.?("ERROR_LOGIN_FAILEDh"))
       }
     }
   }
@@ -44,7 +44,7 @@ object Login {
       bind("form", xhtml,
         "email" -> SHtml.text(email, email = _),
         "password" -> SHtml.password(pass, pass = _),
-        "submit" -> (SHtml.hidden(auth) ++ <input type="submit" value="Login"/>))
+        "submit" -> SHtml.ajaxSubmit(S.?("LABEL_LOGIN"), auth))
     )
   }
 

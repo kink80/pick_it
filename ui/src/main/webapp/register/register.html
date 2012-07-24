@@ -1,0 +1,31 @@
+<lift:surround xmlns:lift="http://liftweb.net" xmlns:form="http://liftweb.net" with="base" at="content">
+
+    <lift:Register.form>
+        <div>
+            <span>
+                <label for="email">
+                    <lift:loc locid="LABEL_EMAIL">Email:</lift:loc>
+                </label>
+                <form:email name="email"/>
+            </span>
+            <span>
+                <label for="password">
+                    <lift:loc locid="LABEL_PASSWORD">Password:</lift:loc>
+                </label>
+                <form:password name="password"/>
+            </span>
+            <span>
+                <label for="password">
+                    <lift:loc locid="LABEL_CONFIRM_PASSWORD">Password:</lift:loc>
+                </label>
+                <form:confirm name="confirm"/>
+            </span>
+            <span>
+                <form:submit/>
+            </span>
+        </div>
+    </lift:Register.form>
+
+    <lift:msgs />
+
+</lift:surround>
